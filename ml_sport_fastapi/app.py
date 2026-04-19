@@ -82,6 +82,43 @@ def _safe_load(path: Path, required: bool = True) -> Any:
     return joblib.load(path)
 
 
+def _n_features(obj: Any) -> int | None:
+    return getattr(obj, "n_features_in_", None)
+
+
+def _check_prediction_stack(
+    expected_features: list[str],
+    scaler: Any,
+    model: Any,
+    stack_name: str,
+) -> None:
+    expected_count = len(expected_features)
+    scaler_count = _n_features(scaler)
+    model_count = _n_features(model)
+
+    if scaler_count is not None and scaler_count != expected_count:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": f"Configuration invalide {stack_name}",
+                "reason": "features vs scaler incompatibles",
+                "features_count": expected_count,
+                "scaler_n_features_in": scaler_count,
+            },
+        )
+
+    if model_count is not None and model_count != expected_count:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": f"Configuration invalide {stack_name}",
+                "reason": "features vs model incompatibles",
+                "features_count": expected_count,
+                "model_n_features_in": model_count,
+            },
+        )
+
+
 @app.on_event("startup")
 def load_artifacts() -> None:
     try:
@@ -131,10 +168,23 @@ def predict_value(payload: FeaturesPayload) -> dict[str, Any]:
     if state.dso1_model is None or state.dso1_scaler is None:
         raise HTTPException(status_code=503, detail="Modele DSO1 non charge")
 
-    ordered_values = _validate_input(payload.features, state.dso1_features)
-    X_input = pd.DataFrame([ordered_values], columns=state.dso1_features)
-    X_scaled = state.dso1_scaler.transform(X_input)
-    prediction = float(state.dso1_model.predict(X_scaled)[0])
+    _check_prediction_stack(state.dso1_features, state.dso1_scaler, state.dso1_model, "DSO1")
+
+    try:
+        ordered_values = _validate_input(payload.features, state.dso1_features)
+        X_input = pd.DataFrame([ordered_values], columns=state.dso1_features)
+        X_scaled = state.dso1_scaler.transform(X_input)
+        prediction = float(state.dso1_model.predict(X_scaled)[0])
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": "Echec prediction DSO1",
+                "reason": str(exc),
+            },
+        ) from exc
 
     return {"predicted_value": prediction}
 
@@ -144,10 +194,23 @@ def predict_position(payload: FeaturesPayload) -> dict[str, Any]:
     if state.dso2_model is None or state.dso2_scaler is None:
         raise HTTPException(status_code=503, detail="Modele DSO2 non charge")
 
-    ordered_values = _validate_input(payload.features, state.dso2_features)
-    X_input = pd.DataFrame([ordered_values], columns=state.dso2_features)
-    X_scaled = state.dso2_scaler.transform(X_input)
-    pred_code = int(state.dso2_model.predict(X_scaled)[0])
+    _check_prediction_stack(state.dso2_features, state.dso2_scaler, state.dso2_model, "DSO2")
+
+    try:
+        ordered_values = _validate_input(payload.features, state.dso2_features)
+        X_input = pd.DataFrame([ordered_values], columns=state.dso2_features)
+        X_scaled = state.dso2_scaler.transform(X_input)
+        pred_code = int(state.dso2_model.predict(X_scaled)[0])
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": "Echec prediction DSO2",
+                "reason": str(exc),
+            },
+        ) from exc
 
     result: dict[str, Any] = {"predicted_position_code": pred_code}
     if state.dso2_label_encoder is not None:
