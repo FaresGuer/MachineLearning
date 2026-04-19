@@ -86,6 +86,36 @@ def _n_features(obj: Any) -> int | None:
     return getattr(obj, "n_features_in_", None)
 
 
+def _scale_with_subset_from_full_scaler(scaler: Any, X_input: pd.DataFrame) -> Any:
+    """
+    Scale un sous-ensemble de colonnes avec un scaler entraine sur un jeu de colonnes plus large.
+    Utilise feature_names_in_, mean_ et scale_ pour reconstruire la transformation exacte.
+    """
+    if not hasattr(scaler, "feature_names_in_"):
+        raise ValueError("Le scaler ne contient pas feature_names_in_ pour aligner les colonnes.")
+    if not hasattr(scaler, "mean_") or not hasattr(scaler, "scale_"):
+        raise ValueError("Le scaler ne contient pas mean_/scale_ pour la transformation.")
+
+    scaler_cols = list(scaler.feature_names_in_)
+    index_map = {name: i for i, name in enumerate(scaler_cols)}
+
+    missing_in_scaler = [c for c in X_input.columns if c not in index_map]
+    if missing_in_scaler:
+        raise ValueError(
+            f"Colonnes absentes du scaler: {missing_in_scaler}"
+        )
+
+    X_scaled = X_input.copy().astype(float)
+    for col in X_input.columns:
+        idx = index_map[col]
+        denom = scaler.scale_[idx]
+        if denom == 0:
+            denom = 1.0
+        X_scaled[col] = (X_input[col] - scaler.mean_[idx]) / denom
+
+    return X_scaled.values
+
+
 def _check_prediction_stack(
     expected_features: list[str],
     scaler: Any,
@@ -96,16 +126,23 @@ def _check_prediction_stack(
     scaler_count = _n_features(scaler)
     model_count = _n_features(model)
 
+    # On tolere un scaler plus large si ses metadonnees permettent de transformer un sous-ensemble.
     if scaler_count is not None and scaler_count != expected_count:
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "error": f"Configuration invalide {stack_name}",
-                "reason": "features vs scaler incompatibles",
-                "features_count": expected_count,
-                "scaler_n_features_in": scaler_count,
-            },
+        has_subset_support = (
+            hasattr(scaler, "feature_names_in_")
+            and hasattr(scaler, "mean_")
+            and hasattr(scaler, "scale_")
         )
+        if not has_subset_support:
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "error": f"Configuration invalide {stack_name}",
+                    "reason": "features vs scaler incompatibles",
+                    "features_count": expected_count,
+                    "scaler_n_features_in": scaler_count,
+                },
+            )
 
     if model_count is not None and model_count != expected_count:
         raise HTTPException(
@@ -173,7 +210,10 @@ def predict_value(payload: FeaturesPayload) -> dict[str, Any]:
     try:
         ordered_values = _validate_input(payload.features, state.dso1_features)
         X_input = pd.DataFrame([ordered_values], columns=state.dso1_features)
-        X_scaled = state.dso1_scaler.transform(X_input)
+        if _n_features(state.dso1_scaler) == len(state.dso1_features):
+            X_scaled = state.dso1_scaler.transform(X_input)
+        else:
+            X_scaled = _scale_with_subset_from_full_scaler(state.dso1_scaler, X_input)
         prediction = float(state.dso1_model.predict(X_scaled)[0])
     except HTTPException:
         raise
@@ -199,7 +239,10 @@ def predict_position(payload: FeaturesPayload) -> dict[str, Any]:
     try:
         ordered_values = _validate_input(payload.features, state.dso2_features)
         X_input = pd.DataFrame([ordered_values], columns=state.dso2_features)
-        X_scaled = state.dso2_scaler.transform(X_input)
+        if _n_features(state.dso2_scaler) == len(state.dso2_features):
+            X_scaled = state.dso2_scaler.transform(X_input)
+        else:
+            X_scaled = _scale_with_subset_from_full_scaler(state.dso2_scaler, X_input)
         pred_code = int(state.dso2_model.predict(X_scaled)[0])
     except HTTPException:
         raise
