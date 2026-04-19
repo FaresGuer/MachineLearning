@@ -117,6 +117,15 @@ def health() -> dict[str, Any]:
     }
 
 
+@app.get("/")
+def root() -> dict[str, str]:
+    return {
+        "message": "ML Sport API is running",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
 @app.post("/predict/value")
 def predict_value(payload: FeaturesPayload) -> dict[str, Any]:
     if state.dso1_model is None or state.dso1_scaler is None:
