@@ -7,12 +7,15 @@ from typing import Any
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from sklearn.neighbors import NearestNeighbors
+from starlette.staticfiles import StaticFiles
 
 
 BASE_DIR = Path(__file__).resolve().parent
 ARTIFACTS_DIR = BASE_DIR / "artifacts"
+STATIC_DIR = BASE_DIR / "static"
 
 
 class FeaturesPayload(BaseModel):
@@ -46,6 +49,9 @@ app = FastAPI(
     description="API de prediction DSO1/DSO2 et recommandation DSO4.",
     version="1.0.0",
 )
+
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 def _load_json(path: Path) -> list[str]:
@@ -197,6 +203,24 @@ def root() -> dict[str, str]:
         "message": "ML Sport API is running",
         "docs": "/docs",
         "health": "/health",
+        "ui": "/ui",
+    }
+
+
+@app.get("/ui", include_in_schema=False)
+def ui() -> FileResponse:
+    index_path = STATIC_DIR / "index.html"
+    if not index_path.exists():
+        raise HTTPException(status_code=404, detail="UI introuvable")
+    return FileResponse(index_path)
+
+
+@app.get("/meta/features")
+def meta_features() -> dict[str, Any]:
+    return {
+        "dso1_features": state.dso1_features,
+        "dso2_features": state.dso2_features,
+        "recommendation_ready": state.rec_df is not None,
     }
 
 

@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ML Sport API UI</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #14213d;
+      --muted: #5f6b7a;
+      --accent: #0f766e;
+      --accent-2: #0a5f59;
+      --border: #d7dee8;
+      --danger: #9f1239;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 10%, #d5f3ef 0, transparent 35%),
+        radial-gradient(circle at 80% 20%, #d8e5ff 0, transparent 40%),
+        var(--bg);
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(20, 33, 61, 0.06);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    textarea,
+    input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      font: inherit;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    button.secondary {
+      background: #e6eef8;
+      color: #1f3b57;
+    }
+
+    button:hover {
+      background: var(--accent-2);
+    }
+
+    button.secondary:hover {
+      background: #dbe6f4;
+    }
+
+    pre {
+      margin: 12px 0 0;
+      background: #0b1220;
+      color: #dbeafe;
+      border-radius: 10px;
+      padding: 10px;
+      min-height: 80px;
+      overflow: auto;
+      font-size: 12px;
+    }
+
+    .health {
+      margin-top: 14px;
+      border-radius: 12px;
+      padding: 10px;
+      background: #eefaf8;
+      border: 1px solid #c8ece7;
+      color: #0f4f49;
+      font-size: 14px;
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>ML Sport API Tester</h1>
+    <p class="subtitle">Quick page to call your DSO1, DSO2, and DSO4 endpoints.</p>
+
+    <div id="health" class="health">Loading API health...</div>
+
+    <section class="grid">
+      <article class="card">
+        <h2>DSO1 - Predict Value</h2>
+        <label for="dso1Payload">Payload (JSON)</label>
+        <textarea id="dso1Payload">{
+  "features": {}
+}</textarea>
+        <div class="row">
+          <button class="secondary" id="fillDso1">Load DSO1 Features</button>
+          <button id="sendDso1">Predict Value</button>
+        </div>
+        <div id="dso1Error" class="error"></div>
+        <pre id="dso1Result">No result yet.</pre>
+      </article>
+
+      <article class="card">
+        <h2>DSO2 - Predict Position</h2>
+        <label for="dso2Payload">Payload (JSON)</label>
+        <textarea id="dso2Payload">{
+  "features": {}
+}</textarea>
+        <div class="row">
+          <button class="secondary" id="fillDso2">Load DSO2 Features</button>
+          <button id="sendDso2">Predict Position</button>
+        </div>
+        <div id="dso2Error" class="error"></div>
+        <pre id="dso2Result">No result yet.</pre>
+      </article>
+
+      <article class="card">
+        <h2>DSO4 - Similar Players</h2>
+        <label for="playerName">Player Name</label>
+        <input id="playerName" value="Kevin De Bruyne">
+
+        <label for="topN">Top N</label>
+        <input id="topN" type="number" min="1" max="50" value="5">
+
+        <label for="tol">Value Tolerance (0 to 1)</label>
+        <input id="tol" type="number" min="0" max="1" step="0.05" value="0.3">
+
+        <div class="row">
+          <button id="sendRec">Recommend</button>
+        </div>
+        <div id="recError" class="error"></div>
+        <pre id="recResult">No result yet.</pre>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const byId = (id) => document.getElementById(id);
+
+    function showResult(id, data) {
+      byId(id).textContent = JSON.stringify(data, null, 2);
+    }
+
+    function showError(id, message) {
+      byId(id).textContent = message || "";
+    }
+
+    async function requestJson(path, options = {}) {
+      const response = await fetch(path, {
+        headers: { "Content-Type": "application/json" },
+        ...options,
+      });
+
+      const text = await response.text();
+      let data;
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        data = { raw: text };
+      }
+
+      if (!response.ok) {
+        const detail = data.detail ? JSON.stringify(data.detail) : JSON.stringify(data);
+        throw new Error(`HTTP ${response.status}: ${detail}`);
+      }
+
+      return data;
+    }
+
+    function buildFeaturesPayload(featureNames) {
+      const features = {};
+      for (const name of featureNames || []) {
+        features[name] = 0;
+      }
+      return { features };
+    }
+
+    async function loadMeta() {
+      const healthEl = byId("health");
+      try {
+        const [health, meta] = await Promise.all([
+          requestJson("/health"),
+          requestJson("/meta/features"),
+        ]);
+
+        healthEl.textContent = `API: ${health.status} | DSO1: ${health.dso1_loaded} | DSO2: ${health.dso2_loaded} | DSO4: ${health.dso4_loaded}`;
+
+        byId("fillDso1").onclick = () => {
+          const payload = buildFeaturesPayload(meta.dso1_features);
+          byId("dso1Payload").value = JSON.stringify(payload, null, 2);
+        };
+
+        byId("fillDso2").onclick = () => {
+          const payload = buildFeaturesPayload(meta.dso2_features);
+          byId("dso2Payload").value = JSON.stringify(payload, null, 2);
+        };
+      } catch (err) {
+        healthEl.textContent = `Error loading API state: ${err.message}`;
+      }
+    }
+
+    byId("sendDso1").onclick = async () => {
+      showError("dso1Error", "");
+      try {
+        const payload = JSON.parse(byId("dso1Payload").value);
+        const data = await requestJson("/predict/value", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        showResult("dso1Result", data);
+      } catch (err) {
+        showError("dso1Error", err.message);
+      }
+    };
+
+    byId("sendDso2").onclick = async () => {
+      showError("dso2Error", "");
+      try {
+        const payload = JSON.parse(byId("dso2Payload").value);
+        const data = await requestJson("/predict/position", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        showResult("dso2Result", data);
+      } catch (err) {
+        showError("dso2Error", err.message);
+      }
+    };
+
+    byId("sendRec").onclick = async () => {
+      showError("recError", "");
+      try {
+        const payload = {
+          player_name: byId("playerName").value,
+          top_n: Number(byId("topN").value),
+          value_tolerance: Number(byId("tol").value),
+        };
+        const data = await requestJson("/recommend/similar", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        showResult("recResult", data);
+      } catch (err) {
+        showError("recError", err.message);
+      }
+    };
+
+    loadMeta();
+  </script>
+</body>
+</html>

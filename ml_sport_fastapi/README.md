@@ -31,6 +31,9 @@ uvicorn app:app --reload --host 0.0.0.0 --port 8000
 Docs Swagger:
 - `http://localhost:8000/docs`
 
+Mini web UI:
+- `http://localhost:8000/ui`
+
 ## 3) Exemple de payloads
 
 ### DSO1
