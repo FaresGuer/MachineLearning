@@ -19,7 +19,7 @@ STATIC_DIR = BASE_DIR / "static"
 
 
 class FeaturesPayload(BaseModel):
-    features: dict[str, float]
+    features: dict[str, float] = Field(default_factory=dict)
 
 
 class RecommendationPayload(BaseModel):
@@ -78,6 +78,24 @@ def _validate_input(features: dict[str, float], expected_features: list[str]) ->
         raise HTTPException(status_code=422, detail=detail)
 
     return [float(features[name]) for name in expected_features]
+
+
+def _validate_input_with_defaults(
+    features: dict[str, float],
+    expected_features: list[str],
+    default_value: float,
+) -> list[float]:
+    extra = [f for f in features if f not in expected_features]
+    if extra:
+        detail = {
+            "missing_features": [f for f in expected_features if f not in features],
+            "extra_features": extra,
+            "expected_count": len(expected_features),
+            "received_count": len(features),
+        }
+        raise HTTPException(status_code=422, detail=detail)
+
+    return [float(features.get(name, default_value)) for name in expected_features]
 
 
 def _safe_load(path: Path, required: bool = True) -> Any:
@@ -220,6 +238,7 @@ def meta_features() -> dict[str, Any]:
     return {
         "dso1_features": state.dso1_features,
         "dso2_features": state.dso2_features,
+        "default_feature_value": 0.0,
         "recommendation_ready": state.rec_df is not None,
     }
 
@@ -232,7 +251,7 @@ def predict_value(payload: FeaturesPayload) -> dict[str, Any]:
     _check_prediction_stack(state.dso1_features, state.dso1_scaler, state.dso1_model, "DSO1")
 
     try:
-        ordered_values = _validate_input(payload.features, state.dso1_features)
+        ordered_values = _validate_input_with_defaults(payload.features, state.dso1_features, default_value=0.0)
         X_input = pd.DataFrame([ordered_values], columns=state.dso1_features)
         if _n_features(state.dso1_scaler) == len(state.dso1_features):
             X_scaled = state.dso1_scaler.transform(X_input)
@@ -261,7 +280,7 @@ def predict_position(payload: FeaturesPayload) -> dict[str, Any]:
     _check_prediction_stack(state.dso2_features, state.dso2_scaler, state.dso2_model, "DSO2")
 
     try:
-        ordered_values = _validate_input(payload.features, state.dso2_features)
+        ordered_values = _validate_input_with_defaults(payload.features, state.dso2_features, default_value=0.0)
         X_input = pd.DataFrame([ordered_values], columns=state.dso2_features)
         if _n_features(state.dso2_scaler) == len(state.dso2_features):
             X_scaled = state.dso2_scaler.transform(X_input)

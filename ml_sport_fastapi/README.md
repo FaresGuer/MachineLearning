@@ -47,7 +47,7 @@ Mini web UI:
 }
 ```
 
-Important: `features` doit contenir exactement toutes les colonnes de `features_dso1.json`.
+Important: les colonnes manquantes dans `features` sont completees automatiquement avec la valeur par defaut `0.0`.
 
 ### DSO2
 
@@ -60,7 +60,7 @@ Important: `features` doit contenir exactement toutes les colonnes de `features_
 }
 ```
 
-Important: `features` doit contenir exactement toutes les colonnes de `features_dso2.json`.
+Important: les colonnes manquantes dans `features` sont completees automatiquement avec la valeur par defaut `0.0`.
 
 ### DSO4
 
