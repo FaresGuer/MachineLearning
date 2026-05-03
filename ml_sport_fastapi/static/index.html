@@ -163,6 +163,7 @@
 }</textarea>
         <div class="row">
           <button class="secondary" id="fillDso1">Load DSO1 Features</button>
+          <button class="secondary" id="randomDso1">Random Values</button>
           <button id="sendDso1">Predict Value</button>
         </div>
         <div id="dso1Error" class="error"></div>
@@ -177,6 +178,7 @@
 }</textarea>
         <div class="row">
           <button class="secondary" id="fillDso2">Load DSO2 Features</button>
+          <button class="secondary" id="randomDso2">Random Values</button>
           <button id="sendDso2">Predict Position</button>
         </div>
         <div id="dso2Error" class="error"></div>
@@ -244,6 +246,14 @@
       return { features };
     }
 
+    function buildRandomFeaturesPayload(featureNames) {
+      const features = {};
+      for (const name of featureNames || []) {
+        features[name] = Math.random() * 100;
+      }
+      return { features };
+    }
+
     async function loadMeta() {
       const healthEl = byId("health");
       try {
@@ -259,8 +269,18 @@
           byId("dso1Payload").value = JSON.stringify(payload, null, 2);
         };
 
+        byId("randomDso1").onclick = () => {
+          const payload = buildRandomFeaturesPayload(meta.dso1_features);
+          byId("dso1Payload").value = JSON.stringify(payload, null, 2);
+        };
+
         byId("fillDso2").onclick = () => {
           const payload = buildFeaturesPayload(meta.dso2_features);
+          byId("dso2Payload").value = JSON.stringify(payload, null, 2);
+        };
+
+        byId("randomDso2").onclick = () => {
+          const payload = buildRandomFeaturesPayload(meta.dso2_features);
           byId("dso2Payload").value = JSON.stringify(payload, null, 2);
         };
       } catch (err) {
