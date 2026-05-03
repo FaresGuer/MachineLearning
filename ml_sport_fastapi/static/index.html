@@ -6,157 +6,344 @@
   <title>ML Sport API UI</title>
   <style>
     :root {
-      --bg: #f6f8fb;
-      --card: #ffffff;
-      --text: #14213d;
-      --muted: #5f6b7a;
-      --accent: #0f766e;
-      --accent-2: #0a5f59;
-      --border: #d7dee8;
+      --bg: #081120;
+      --card: rgba(12, 20, 38, 0.78);
+      --text: #eaf1ff;
+      --muted: #9da9c4;
+      --accent: #4fd1c5;
+      --accent-2: #2fb6e8;
+      --accent-3: #f59e0b;
+      --border: rgba(170, 189, 222, 0.18);
       --danger: #9f1239;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at 20% 10%, #d5f3ef 0, transparent 35%),
-        radial-gradient(circle at 80% 20%, #d8e5ff 0, transparent 40%),
-        var(--bg);
+        radial-gradient(circle at 12% 14%, rgba(79, 209, 197, 0.26) 0, transparent 26%),
+        radial-gradient(circle at 82% 10%, rgba(47, 182, 232, 0.22) 0, transparent 28%),
+        radial-gradient(circle at 50% 110%, rgba(245, 158, 11, 0.18) 0, transparent 30%),
+        linear-gradient(180deg, #050b16 0%, var(--bg) 55%, #070e1a 100%);
     }
 
     .container {
-      max-width: 1080px;
+      max-width: 1240px;
       margin: 0 auto;
-      padding: 24px 16px 40px;
+      padding: 28px 18px 44px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      background:
+        linear-gradient(135deg, rgba(17, 29, 51, 0.9), rgba(8, 17, 32, 0.9)),
+        linear-gradient(120deg, rgba(79, 209, 197, 0.14), transparent 55%);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -100px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(47, 182, 232, 0.24) 0, rgba(47, 182, 232, 0) 68%);
+      pointer-events: none;
     }
 
     h1 {
-      margin: 0 0 8px;
-      font-size: 30px;
+      margin: 0;
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.02;
+      letter-spacing: -0.02em;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 7px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .hero-copy {
+      display: grid;
+      gap: 14px;
+      max-width: 760px;
+      position: relative;
+      z-index: 1;
     }
 
     .subtitle {
-      margin: 0 0 24px;
+      margin: 0;
+      max-width: 64ch;
+      font-size: 16px;
+      line-height: 1.6;
       color: var(--muted);
     }
 
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #d8e2f5;
+      font-size: 13px;
+    }
+
+    .pill strong {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .status-strip {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .health {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      min-height: 0;
+    }
+
+    .status-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(170, 189, 222, 0.18);
+      background: rgba(255, 255, 255, 0.06);
+      color: #d8e2f5;
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(79, 209, 197, 0.12);
+      flex: 0 0 auto;
+    }
+
+    .status-dot.warn {
+      background: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.14);
+    }
+
+    .status-dot.off {
+      background: #ef4444;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.14);
+    }
+
     .grid {
+      margin-top: 18px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 18px;
     }
 
     .card {
-      background: var(--card);
+      background: linear-gradient(180deg, rgba(17, 29, 51, 0.94), rgba(10, 17, 33, 0.92));
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-      box-shadow: 0 8px 24px rgba(20, 33, 61, 0.06);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
     }
 
     .card h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
+      margin: 0 0 8px;
+      font-size: 20px;
+      letter-spacing: -0.01em;
+    }
+
+    .card p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
     }
 
     label {
       display: block;
-      margin: 10px 0 6px;
+      margin: 12px 0 6px;
       font-size: 13px;
-      color: var(--muted);
+      color: #cad5eb;
     }
 
     textarea,
     input {
       width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px;
+      border: 1px solid rgba(170, 189, 222, 0.2);
+      border-radius: 12px;
+      padding: 11px 12px;
       font: inherit;
-      background: #fff;
+      background: rgba(6, 11, 22, 0.8);
+      color: var(--text);
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    textarea:focus,
+    input:focus {
+      border-color: rgba(79, 209, 197, 0.65);
+      box-shadow: 0 0 0 4px rgba(79, 209, 197, 0.12);
+      transform: translateY(-1px);
     }
 
     textarea {
-      min-height: 180px;
+      min-height: 210px;
       resize: vertical;
-      font-family: Consolas, "Courier New", monospace;
+      font-family: "Cascadia Code", Consolas, "Courier New", monospace;
       font-size: 12px;
+      line-height: 1.5;
     }
 
     .row {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
     button {
       border: none;
-      border-radius: 10px;
-      padding: 8px 12px;
+      border-radius: 12px;
+      padding: 10px 14px;
       font-weight: 600;
       cursor: pointer;
-      background: var(--accent);
-      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #06111f;
+      box-shadow: 0 10px 24px rgba(47, 182, 232, 0.22);
+      transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
     }
 
     button.secondary {
-      background: #e6eef8;
-      color: #1f3b57;
+      background: rgba(255, 255, 255, 0.06);
+      color: #eaf1ff;
+      border: 1px solid rgba(170, 189, 222, 0.18);
+      box-shadow: none;
     }
 
-    button:hover {
-      background: var(--accent-2);
+    button:hover,
+    button:focus-visible {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
     }
 
     button.secondary:hover {
-      background: #dbe6f4;
+      background: rgba(255, 255, 255, 0.09);
     }
 
     pre {
-      margin: 12px 0 0;
-      background: #0b1220;
-      color: #dbeafe;
-      border-radius: 10px;
-      padding: 10px;
-      min-height: 80px;
+      margin: 14px 0 0;
+      background: rgba(4, 8, 17, 0.95);
+      color: #d7e7ff;
+      border: 1px solid rgba(170, 189, 222, 0.14);
+      border-radius: 14px;
+      padding: 12px;
+      min-height: 92px;
       overflow: auto;
       font-size: 12px;
-    }
-
-    .health {
-      margin-top: 14px;
-      border-radius: 12px;
-      padding: 10px;
-      background: #eefaf8;
-      border: 1px solid #c8ece7;
-      color: #0f4f49;
-      font-size: 14px;
+      line-height: 1.55;
     }
 
     .error {
-      color: var(--danger);
+      color: #fda4af;
       font-size: 13px;
       margin-top: 8px;
+      min-height: 18px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(170, 189, 222, 0.12);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .mini-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(79, 209, 197, 0.12);
+      color: #9ff3eb;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
     }
   </style>
 </head>
 <body>
   <main class="container">
-    <h1>ML Sport API Tester</h1>
-    <p class="subtitle">Quick page to call our DSO1, DSO2, and DSO4 endpoints.</p>
-
-    <div id="health" class="health">Loading API health...</div>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">ML Sport API</div>
+        <h1>Fast testing for DSO1, DSO2, and DSO4.</h1>
+        <div class="status-strip">
+          <div id="health" class="health"><span class="status-item"><span class="status-dot"></span><span>Loading API health...</span></span></div>
+        </div>
+      </div>
+    </section>
 
     <section class="grid">
       <article class="card">
+        <span class="card-tag">Predict Value</span>
         <h2>DSO1 - Predict Value</h2>
+        <p>Fill the DSO1 feature payload, randomize it, or send a prediction request immediately.</p>
         <label for="dso1Payload">Payload (JSON)</label>
         <textarea id="dso1Payload">{
   "features": {}
@@ -168,10 +355,15 @@
         </div>
         <div id="dso1Error" class="error"></div>
         <pre id="dso1Result">No result yet.</pre>
+        <div class="card-footer">
+          <span class="mini-note">Uses the loaded DSO1 feature set.</span>
+        </div>
       </article>
 
       <article class="card">
+        <span class="card-tag">Predict Position</span>
         <h2>DSO2 - Predict Position</h2>
+        <p>Generate a clean feature payload or try randomized values to stress-test the prediction stack.</p>
         <label for="dso2Payload">Payload (JSON)</label>
         <textarea id="dso2Payload">{
   "features": {}
@@ -183,10 +375,15 @@
         </div>
         <div id="dso2Error" class="error"></div>
         <pre id="dso2Result">No result yet.</pre>
+        <div class="card-footer">
+          <span class="mini-note">Uses the loaded DSO2 feature set.</span>
+        </div>
       </article>
 
       <article class="card">
+        <span class="card-tag">Recommendation</span>
         <h2>DSO4 - Similar Players</h2>
+        <p>Ask for similar players with a compact form tuned for quick comparisons.</p>
         <label for="playerName">Player Name</label>
         <input id="playerName" value="Cristiano Ronaldo">
 
@@ -201,6 +398,9 @@
         </div>
         <div id="recError" class="error"></div>
         <pre id="recResult">No result yet.</pre>
+        <div class="card-footer">
+          <span class="mini-note">Recommendation search uses the loaded similarity index.</span>
+        </div>
       </article>
     </section>
   </main>
@@ -262,7 +462,16 @@
           requestJson("/meta/features"),
         ]);
 
-        healthEl.textContent = `API: ${health.status} | DSO1: ${health.dso1_loaded} | DSO2: ${health.dso2_loaded} | DSO4: ${health.dso4_loaded}`;
+        const chips = [
+          [health.status === "ok" ? "status-dot" : "status-dot off", `API: ${health.status}`],
+          [health.dso1_loaded ? "status-dot" : "status-dot off", `DSO1: ${health.dso1_loaded ? "ready" : "offline"}`],
+          [health.dso2_loaded ? "status-dot" : "status-dot off", `DSO2: ${health.dso2_loaded ? "ready" : "offline"}`],
+          [health.dso4_loaded ? "status-dot" : "status-dot warn", `DSO4: ${health.dso4_loaded ? "ready" : "offline"}`],
+        ];
+
+        healthEl.innerHTML = chips
+          .map(([dotClass, label]) => `<span class="status-item"><span class="${dotClass}"></span><span>${label}</span></span>`)
+          .join("");
 
         byId("fillDso1").onclick = () => {
           const payload = buildFeaturesPayload(meta.dso1_features);
@@ -284,7 +493,7 @@
           byId("dso2Payload").value = JSON.stringify(payload, null, 2);
         };
       } catch (err) {
-        healthEl.textContent = `Error loading API state: ${err.message}`;
+        healthEl.innerHTML = `<span class="status-item"><span class="status-dot off"></span><span>Error loading API state: ${err.message}</span></span>`;
       }
     }
 
