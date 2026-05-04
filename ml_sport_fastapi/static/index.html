@@ -474,6 +474,85 @@
       border-radius: 14px;
     }
 
+    .result-box {
+      padding: 24px;
+    }
+
+    .result-value {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .result-value-label {
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 12px;
+    }
+
+    .result-value-large {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: "Courier New", monospace;
+      word-break: break-all;
+    }
+
+    .result-position {
+      text-align: center;
+      padding: 24px;
+    }
+
+    .position-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: 700;
+      margin: 12px 0;
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    .result-table th {
+      background: rgba(79, 209, 197, 0.15);
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--primary);
+      border-bottom: 2px solid rgba(79, 209, 197, 0.3);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .result-table td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(79, 209, 197, 0.1);
+      color: var(--text);
+    }
+
+    .result-table tr:hover {
+      background: rgba(79, 209, 197, 0.05);
+    }
+
+    .similarity-score {
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    .player-name {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
     .modal-actions {
       display: flex;
       gap: 10px;
@@ -583,8 +662,8 @@
           </div>
           <div id="dso1Error" class="error"></div>
           <div id="dso1ResultContainer" class="hidden">
-            <div class="modal-results">
-              <pre id="dso1Result"></pre>
+            <div class="modal-results result-box">
+              <div id="dso1Result"></div>
             </div>
             <div class="modal-actions" style="margin-top: 16px;">
               <button class="secondary" id="newAnalysisBos1">← Back to Models</button>
@@ -614,8 +693,8 @@
           </div>
           <div id="dso2Error" class="error"></div>
           <div id="dso2ResultContainer" class="hidden">
-            <div class="modal-results">
-              <pre id="dso2Result"></pre>
+            <div class="modal-results result-box">
+              <div id="dso2Result"></div>
             </div>
             <div class="modal-actions" style="margin-top: 16px;">
               <button class="secondary" id="newAnalysisBos2">← Back to Models</button>
@@ -645,8 +724,8 @@
           </div>
           <div id="recError" class="error"></div>
           <div id="recResultContainer" class="hidden">
-            <div class="modal-results">
-              <pre id="recResult"></pre>
+            <div class="modal-results result-box">
+              <div id="recResult"></div>
             </div>
             <div class="modal-actions" style="margin-top: 16px;">
               <button class="secondary" id="newAnalysisBos4">← Back to Models</button>
@@ -853,6 +932,70 @@
       });
     }
 
+    function formatValueResult(value) {
+      const formatted = value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return `
+        <div class="result-value">
+          <div class="result-value-label">📊 Estimated Player Value</div>
+          <div class="result-value-large">$${formatted}</div>
+        </div>
+      `;
+    }
+
+    function formatPositionResult(data) {
+      const label = data.predicted_position_label || `Position ${data.predicted_position_code}`;
+      const icons = {
+        'Goalkeeper': '🥅',
+        'Defender': '🛡️',
+        'Midfielder': '⚙️',
+        'Forward': '⚽',
+      };
+      const icon = icons[label] || '⚽';
+      return `
+        <div class="result-position">
+          <div class="result-value-label">Best Position</div>
+          <div class="position-badge">${icon} ${label}</div>
+        </div>
+      `;
+    }
+
+    function formatRecommendationsResult(data) {
+      let html = `
+        <div>
+          <div class="result-value-label">🔍 Similar Players to: <strong>${data.reference_player}</strong></div>
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Similarity</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      if (data.recommendations && data.recommendations.length > 0) {
+        data.recommendations.forEach(player => {
+          const similarity = (player.similarity * 100).toFixed(1);
+          const value = player.value_clean.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          html += `
+            <tr>
+              <td><span class="player-name">${player.player_name}</span></td>
+              <td><span class="similarity-score">${similarity}%</span></td>
+              <td>$${value}</td>
+            </tr>
+          `;
+        });
+      }
+      
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+      return html;
+    }
+
     async function loadMeta() {
       const healthEl = byId("health");
       try {
@@ -933,7 +1076,8 @@
           method: "POST",
           body: JSON.stringify(payload),
         });
-        byId("dso1Result").textContent = JSON.stringify(data, null, 2);
+        const formatted = formatValueResult(data.predicted_value);
+        byId("dso1Result").innerHTML = formatted;
         byId("dso1ResultContainer").classList.remove("hidden");
       } catch (err) {
         showError("dso1Error", err.message);
@@ -948,7 +1092,8 @@
           method: "POST",
           body: JSON.stringify(payload),
         });
-        byId("dso2Result").textContent = JSON.stringify(data, null, 2);
+        const formatted = formatPositionResult(data);
+        byId("dso2Result").innerHTML = formatted;
         byId("dso2ResultContainer").classList.remove("hidden");
       } catch (err) {
         showError("dso2Error", err.message);
@@ -967,7 +1112,8 @@
           method: "POST",
           body: JSON.stringify(payload),
         });
-        byId("recResult").textContent = JSON.stringify(data, null, 2);
+        const formatted = formatRecommendationsResult(data);
+        byId("recResult").innerHTML = formatted;
         byId("recResultContainer").classList.remove("hidden");
       } catch (err) {
         showError("recError", err.message);
