@@ -709,36 +709,6 @@
       });
     });
 
-    // Pagination handlers for DSO1
-    byId("prevDso1").addEventListener("click", () => {
-      if (paginationState.dso1.currentPage > 0) {
-        paginationState.dso1.currentPage--;
-        updateFeaturePage(meta.dso1_features, "dso1FieldsContainer", "dso1");
-      }
-    });
-
-    byId("nextDso1").addEventListener("click", () => {
-      if (paginationState.dso1.currentPage < paginationState.dso1.totalPages - 1) {
-        paginationState.dso1.currentPage++;
-        updateFeaturePage(meta.dso1_features, "dso1FieldsContainer", "dso1");
-      }
-    });
-
-    // Pagination handlers for DSO2
-    byId("prevDso2").addEventListener("click", () => {
-      if (paginationState.dso2.currentPage > 0) {
-        paginationState.dso2.currentPage--;
-        updateFeaturePage(meta.dso2_features, "dso2FieldsContainer", "dso2");
-      }
-    });
-
-    byId("nextDso2").addEventListener("click", () => {
-      if (paginationState.dso2.currentPage < paginationState.dso2.totalPages - 1) {
-        paginationState.dso2.currentPage++;
-        updateFeaturePage(meta.dso2_features, "dso2FieldsContainer", "dso2");
-      }
-    });
-
     async function requestJson(path, options = {}) {
       const response = await fetch(path, {
         headers: { "Content-Type": "application/json" },
@@ -894,6 +864,36 @@
         byId("randomDso2").onclick = () => {
           fillFormRandom("dso2FieldsContainer");
         };
+
+        // Pagination handlers for DSO1
+        byId("prevDso1").addEventListener("click", () => {
+          if (paginationState.dso1.currentPage > 0) {
+            paginationState.dso1.currentPage--;
+            updateFeaturePage(meta.dso1_features, "dso1FieldsContainer", "dso1");
+          }
+        });
+
+        byId("nextDso1").addEventListener("click", () => {
+          if (paginationState.dso1.currentPage < paginationState.dso1.totalPages - 1) {
+            paginationState.dso1.currentPage++;
+            updateFeaturePage(meta.dso1_features, "dso1FieldsContainer", "dso1");
+          }
+        });
+
+        // Pagination handlers for DSO2
+        byId("prevDso2").addEventListener("click", () => {
+          if (paginationState.dso2.currentPage > 0) {
+            paginationState.dso2.currentPage--;
+            updateFeaturePage(meta.dso2_features, "dso2FieldsContainer", "dso2");
+          }
+        });
+
+        byId("nextDso2").addEventListener("click", () => {
+          if (paginationState.dso2.currentPage < paginationState.dso2.totalPages - 1) {
+            paginationState.dso2.currentPage++;
+            updateFeaturePage(meta.dso2_features, "dso2FieldsContainer", "dso2");
+          }
+        });
       } catch (err) {
         healthEl.innerHTML = `<span class="status-item"><span class="status-dot off"></span><span>Error loading API state: ${err.message}</span></span>`;
       }
