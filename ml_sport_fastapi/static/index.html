@@ -477,6 +477,46 @@
     .hidden {
       display: none !important;
     }
+
+    .pagination-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 300ms ease;
+    }
+
+    .pagination-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .pagination-controls button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -517,9 +557,20 @@
         <!-- BOS1 Form -->
         <div id="formBos1" class="modal-content">
           <p style="color: var(--muted); margin-bottom: 16px;">Enter player statistics to estimate market value.</p>
+          <div id="dso1PaginationInfo" class="pagination-info">
+            <span id="dso1PageText">Page 1 of 1</span>
+            <span id="dso1FieldCount">4 fields</span>
+          </div>
+          <div id="dso1ProgressBar" class="progress-bar">
+            <div class="progress-fill" style="width: 100%;"></div>
+          </div>
           <div id="dso1FieldsContainer" class="fields-grid"></div>
+          <div class="pagination-controls">
+            <button class="secondary" id="prevDso1" style="flex: 1;">← Previous</button>
+            <button class="secondary" id="nextDso1" style="flex: 1;">Next →</button>
+          </div>
           <div class="modal-actions">
-            <button class="secondary" id="fillDso1">Reset</button>
+            <button class="secondary" id="fillDso1">Reset All</button>
             <button class="secondary" id="randomDso1">Sample Data</button>
             <button id="sendDso1">Estimate Value</button>
           </div>
@@ -537,9 +588,20 @@
         <!-- BOS2 Form -->
         <div id="formBos2" class="modal-content">
           <p style="color: var(--muted); margin-bottom: 16px;">Enter player attributes to find their best position.</p>
+          <div id="dso2PaginationInfo" class="pagination-info">
+            <span id="dso2PageText">Page 1 of 1</span>
+            <span id="dso2FieldCount">4 fields</span>
+          </div>
+          <div id="dso2ProgressBar" class="progress-bar">
+            <div class="progress-fill" style="width: 100%;"></div>
+          </div>
           <div id="dso2FieldsContainer" class="fields-grid"></div>
+          <div class="pagination-controls">
+            <button class="secondary" id="prevDso2" style="flex: 1;">← Previous</button>
+            <button class="secondary" id="nextDso2" style="flex: 1;">Next →</button>
+          </div>
           <div class="modal-actions">
-            <button class="secondary" id="fillDso2">Reset</button>
+            <button class="secondary" id="fillDso2">Reset All</button>
             <button class="secondary" id="randomDso2">Sample Data</button>
             <button id="sendDso2">Find Position</button>
           </div>
@@ -647,6 +709,36 @@
       });
     });
 
+    // Pagination handlers for DSO1
+    byId("prevDso1").addEventListener("click", () => {
+      if (paginationState.dso1.currentPage > 0) {
+        paginationState.dso1.currentPage--;
+        updateFeaturePage(meta.dso1_features, "dso1FieldsContainer", "dso1");
+      }
+    });
+
+    byId("nextDso1").addEventListener("click", () => {
+      if (paginationState.dso1.currentPage < paginationState.dso1.totalPages - 1) {
+        paginationState.dso1.currentPage++;
+        updateFeaturePage(meta.dso1_features, "dso1FieldsContainer", "dso1");
+      }
+    });
+
+    // Pagination handlers for DSO2
+    byId("prevDso2").addEventListener("click", () => {
+      if (paginationState.dso2.currentPage > 0) {
+        paginationState.dso2.currentPage--;
+        updateFeaturePage(meta.dso2_features, "dso2FieldsContainer", "dso2");
+      }
+    });
+
+    byId("nextDso2").addEventListener("click", () => {
+      if (paginationState.dso2.currentPage < paginationState.dso2.totalPages - 1) {
+        paginationState.dso2.currentPage++;
+        updateFeaturePage(meta.dso2_features, "dso2FieldsContainer", "dso2");
+      }
+    });
+
     async function requestJson(path, options = {}) {
       const response = await fetch(path, {
         headers: { "Content-Type": "application/json" },
@@ -685,10 +777,36 @@
       return { features };
     }
 
-    function generateFieldsForm(featureNames, containerId) {
+    const paginationState = {
+      dso1: { currentPage: 0, totalPages: 1 },
+      dso2: { currentPage: 0, totalPages: 1 },
+    };
+
+    function generateFieldsForm(featureNames, containerId, modelId) {
       const container = byId(containerId);
+      const FIELDS_PER_PAGE = 4;
+      const totalPages = Math.ceil((featureNames?.length || 0) / FIELDS_PER_PAGE);
+
+      if (!paginationState[modelId]) {
+        paginationState[modelId] = { currentPage: 0, totalPages };
+      } else {
+        paginationState[modelId].totalPages = totalPages;
+        paginationState[modelId].currentPage = 0;
+      }
+
+      updateFeaturePage(featureNames, containerId, modelId);
+    }
+
+    function updateFeaturePage(featureNames, containerId, modelId) {
+      const container = byId(containerId);
+      const FIELDS_PER_PAGE = 4;
+      const state = paginationState[modelId];
+      const start = state.currentPage * FIELDS_PER_PAGE;
+      const end = start + FIELDS_PER_PAGE;
+      const pageFields = featureNames.slice(start, end);
+
       container.innerHTML = "";
-      for (const name of featureNames || []) {
+      for (const name of pageFields) {
         const fieldGroup = document.createElement("div");
         fieldGroup.className = "field-group";
         fieldGroup.innerHTML = `
@@ -697,6 +815,25 @@
         `;
         container.appendChild(fieldGroup);
       }
+
+      // Update pagination info
+      const pageText = byId(`${modelId}PageText`);
+      const fieldCount = byId(`${modelId}FieldCount`);
+      const progressBar = byId(`${modelId}ProgressBar`);
+      if (pageText) pageText.textContent = `Page ${state.currentPage + 1} of ${state.totalPages}`;
+      if (fieldCount) fieldCount.textContent = `${pageFields.length} fields`;
+      if (progressBar) {
+        const progressFill = progressBar.querySelector(".progress-fill");
+        const percent = ((state.currentPage + 1) / state.totalPages) * 100;
+        progressFill.style.width = percent + "%";
+      }
+
+      // Update button states
+      const modelPrefix = modelId.charAt(0).toUpperCase() + modelId.slice(1);
+      const prevBtn = byId(`prev${modelPrefix}`);
+      const nextBtn = byId(`next${modelPrefix}`);
+      if (prevBtn) prevBtn.disabled = state.currentPage === 0;
+      if (nextBtn) nextBtn.disabled = state.currentPage === state.totalPages - 1;
     }
 
     function getFormPayload(containerId) {
@@ -739,8 +876,8 @@
           .map(([dotClass, label]) => `<span class="status-item"><span class="${dotClass}"></span><span>${label}</span></span>`)
           .join("");
 
-        generateFieldsForm(meta.dso1_features, "dso1FieldsContainer");
-        generateFieldsForm(meta.dso2_features, "dso2FieldsContainer");
+        generateFieldsForm(meta.dso1_features, "dso1FieldsContainer", "dso1");
+        generateFieldsForm(meta.dso2_features, "dso2FieldsContainer", "dso2");
 
         byId("fillDso1").onclick = () => {
           fillFormZero("dso1FieldsContainer");
