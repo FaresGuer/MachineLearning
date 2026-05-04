@@ -333,6 +333,13 @@
       margin-bottom: 14px;
     }
 
+    .page-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
     .field-group {
       display: flex;
       flex-direction: column;
@@ -764,34 +771,53 @@
         paginationState[modelId].currentPage = 0;
       }
 
-      updateFeaturePage(featureNames, containerId, modelId);
+      // Create ALL fields upfront, wrap each in a page container
+      container.innerHTML = "";
+      for (let i = 0; i < totalPages; i++) {
+        const pageStart = i * FIELDS_PER_PAGE;
+        const pageEnd = Math.min(pageStart + FIELDS_PER_PAGE, featureNames.length);
+        const pageFields = featureNames.slice(pageStart, pageEnd);
+
+        const pageContainer = document.createElement("div");
+        pageContainer.className = "page-fields";
+        pageContainer.dataset.page = i;
+
+        for (const name of pageFields) {
+          const fieldGroup = document.createElement("div");
+          fieldGroup.className = "field-group";
+          fieldGroup.innerHTML = `
+            <label>${name}</label>
+            <input type="number" step="0.01" value="0" data-feature="${name}" />
+          `;
+          pageContainer.appendChild(fieldGroup);
+        }
+        container.appendChild(pageContainer);
+      }
+
+      updateFeaturePage(containerId, modelId);
     }
 
-    function updateFeaturePage(featureNames, containerId, modelId) {
+    function updateFeaturePage(containerId, modelId) {
       const container = byId(containerId);
-      const FIELDS_PER_PAGE = 4;
       const state = paginationState[modelId];
-      const start = state.currentPage * FIELDS_PER_PAGE;
-      const end = start + FIELDS_PER_PAGE;
-      const pageFields = featureNames.slice(start, end);
 
-      container.innerHTML = "";
-      for (const name of pageFields) {
-        const fieldGroup = document.createElement("div");
-        fieldGroup.className = "field-group";
-        fieldGroup.innerHTML = `
-          <label>${name}</label>
-          <input type="number" step="0.01" value="0" data-feature="${name}" />
-        `;
-        container.appendChild(fieldGroup);
-      }
+      // Show/hide page containers
+      const pageContainers = container.querySelectorAll(".page-fields");
+      pageContainers.forEach((page, index) => {
+        page.style.display = index === state.currentPage ? "grid" : "none";
+      });
+
+      // Get visible fields for the current page to count them
+      const currentPageContainer = container.querySelector(".page-fields[data-page='" + state.currentPage + "']");
+      const visibleFields = currentPageContainer ? currentPageContainer.querySelectorAll(".field-group") : [];
+      const fieldCount = visibleFields.length;
 
       // Update pagination info
       const pageText = byId(`${modelId}PageText`);
-      const fieldCount = byId(`${modelId}FieldCount`);
+      const fieldCountEl = byId(`${modelId}FieldCount`);
       const progressBar = byId(`${modelId}ProgressBar`);
       if (pageText) pageText.textContent = `Page ${state.currentPage + 1} of ${state.totalPages}`;
-      if (fieldCount) fieldCount.textContent = `${pageFields.length} fields`;
+      if (fieldCountEl) fieldCountEl.textContent = `${fieldCount} fields`;
       if (progressBar) {
         const progressFill = progressBar.querySelector(".progress-fill");
         const percent = ((state.currentPage + 1) / state.totalPages) * 100;
@@ -869,14 +895,14 @@
         byId("prevDso1").addEventListener("click", () => {
           if (paginationState.dso1.currentPage > 0) {
             paginationState.dso1.currentPage--;
-            updateFeaturePage(meta.dso1_features, "dso1FieldsContainer", "dso1");
+            updateFeaturePage("dso1FieldsContainer", "dso1");
           }
         });
 
         byId("nextDso1").addEventListener("click", () => {
           if (paginationState.dso1.currentPage < paginationState.dso1.totalPages - 1) {
             paginationState.dso1.currentPage++;
-            updateFeaturePage(meta.dso1_features, "dso1FieldsContainer", "dso1");
+            updateFeaturePage("dso1FieldsContainer", "dso1");
           }
         });
 
@@ -884,14 +910,14 @@
         byId("prevDso2").addEventListener("click", () => {
           if (paginationState.dso2.currentPage > 0) {
             paginationState.dso2.currentPage--;
-            updateFeaturePage(meta.dso2_features, "dso2FieldsContainer", "dso2");
+            updateFeaturePage("dso2FieldsContainer", "dso2");
           }
         });
 
         byId("nextDso2").addEventListener("click", () => {
           if (paginationState.dso2.currentPage < paginationState.dso2.totalPages - 1) {
             paginationState.dso2.currentPage++;
-            updateFeaturePage(meta.dso2_features, "dso2FieldsContainer", "dso2");
+            updateFeaturePage("dso2FieldsContainer", "dso2");
           }
         });
       } catch (err) {
