@@ -325,96 +325,327 @@
       text-transform: uppercase;
       letter-spacing: 0.12em;
     }
+
+    .fields-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-group label {
+      margin: 0;
+      font-size: 12px;
+      color: #cad5eb;
+      font-weight: 500;
+    }
+
+    .field-group input {
+      padding: 9px 10px;
+      font-size: 13px;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .model-card {
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(17, 29, 51, 0.94), rgba(10, 17, 33, 0.92));
+      border: 2px solid rgba(170, 189, 222, 0.18);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      transition: all 200ms ease;
+    }
+
+    .model-card:hover {
+      border-color: rgba(79, 209, 197, 0.65);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(47, 182, 232, 0.18);
+    }
+
+    .model-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: #eaf1ff;
+    }
+
+    .model-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: linear-gradient(180deg, rgba(8, 17, 32, 0.98), rgba(5, 11, 22, 0.98));
+      border: 1px solid rgba(170, 189, 222, 0.18);
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(170, 189, 222, 0.12);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.01em;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: all 150ms ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #eaf1ff;
+    }
+
+    .modal-content {
+      display: none;
+    }
+
+    .modal-content.active {
+      display: block;
+    }
+
+    .modal-results {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(4, 8, 17, 0.95);
+      border: 1px solid rgba(79, 209, 197, 0.2);
+      border-radius: 14px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
   <main class="container">
     <section class="hero">
       <div class="hero-copy">
-        <div class="eyebrow">ML Sport API</div>
-        <h1>Fast testing for DSO1, DSO2, and DSO4.</h1>
+        <div class="eyebrow">Sports Analytics Platform</div>
+        <h1>Estimate player values, positions, and find comparable talent.</h1>
+        <p class="subtitle">Quickly analyze player performance, predict their market value and optimal position, and discover similar athletes in seconds.</p>
         <div class="status-strip">
           <div id="health" class="health"><span class="status-item"><span class="status-dot"></span><span>Loading API health...</span></span></div>
         </div>
       </div>
     </section>
 
-    <section class="grid">
-      <article class="card">
-        <span class="card-tag">Predict Value</span>
-        <h2>DSO1 - Predict Value</h2>
-        <p>Fill the DSO1 feature payload, randomize it, or send a prediction request immediately.</p>
-        <label for="dso1Payload">Payload (JSON)</label>
-        <textarea id="dso1Payload">{
-  "features": {}
-}</textarea>
-        <div class="row">
-          <button class="secondary" id="fillDso1">Load DSO1 Features</button>
-          <button class="secondary" id="randomDso1">Random Values</button>
-          <button id="sendDso1">Predict Value</button>
-        </div>
-        <div id="dso1Error" class="error"></div>
-        <pre id="dso1Result">No result yet.</pre>
-        <div class="card-footer">
-          <span class="mini-note">Uses the loaded DSO1 feature set.</span>
-        </div>
-      </article>
-
-      <article class="card">
-        <span class="card-tag">Predict Position</span>
-        <h2>DSO2 - Predict Position</h2>
-        <p>Generate a clean feature payload or try randomized values to stress-test the prediction stack.</p>
-        <label for="dso2Payload">Payload (JSON)</label>
-        <textarea id="dso2Payload">{
-  "features": {}
-}</textarea>
-        <div class="row">
-          <button class="secondary" id="fillDso2">Load DSO2 Features</button>
-          <button class="secondary" id="randomDso2">Random Values</button>
-          <button id="sendDso2">Predict Position</button>
-        </div>
-        <div id="dso2Error" class="error"></div>
-        <pre id="dso2Result">No result yet.</pre>
-        <div class="card-footer">
-          <span class="mini-note">Uses the loaded DSO2 feature set.</span>
-        </div>
-      </article>
-
-      <article class="card">
-        <span class="card-tag">Recommendation</span>
-        <h2>DSO4 - Similar Players</h2>
-        <p>Ask for similar players with a compact form tuned for quick comparisons.</p>
-        <label for="playerName">Player Name</label>
-        <input id="playerName" value="Cristiano Ronaldo">
-
-        <label for="topN">Top N</label>
-        <input id="topN" type="number" min="1" max="50" value="5">
-
-        <label for="tol">Value Tolerance (0 to 1)</label>
-        <input id="tol" type="number" min="0" max="1" step="0.05" value="0.3">
-
-        <div class="row">
-          <button id="sendRec">Recommend</button>
-        </div>
-        <div id="recError" class="error"></div>
-        <pre id="recResult">No result yet.</pre>
-        <div class="card-footer">
-          <span class="mini-note">Recommendation search uses the loaded similarity index.</span>
-        </div>
-      </article>
+    <section id="modelSelection" class="model-grid">
+      <div class="model-card" data-model="bos1">
+        <h3>📊 Player Value</h3>
+        <p>Estimate market value based on player statistics and performance metrics.</p>
+      </div>
+      <div class="model-card" data-model="bos2">
+        <h3>⚽ Best Position</h3>
+        <p>Identify the optimal position and role for a player based on their attributes.</p>
+      </div>
+      <div class="model-card" data-model="bos4">
+        <h3>🔍 Similar Players</h3>
+        <p>Find comparable players with similar skills and market value.</p>
+      </div>
     </section>
+
+    <div id="formModal" class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="modalTitle">Model Title</h2>
+          <button class="modal-close" id="closeModal">✕</button>
+        </div>
+
+        <!-- BOS1 Form -->
+        <div id="formBos1" class="modal-content">
+          <p style="color: var(--muted); margin-bottom: 16px;">Enter player statistics to estimate market value.</p>
+          <div id="dso1FieldsContainer" class="fields-grid"></div>
+          <div class="modal-actions">
+            <button class="secondary" id="fillDso1">Reset</button>
+            <button class="secondary" id="randomDso1">Sample Data</button>
+            <button id="sendDso1">Estimate Value</button>
+          </div>
+          <div id="dso1Error" class="error"></div>
+          <div id="dso1ResultContainer" class="hidden">
+            <div class="modal-results">
+              <pre id="dso1Result"></pre>
+            </div>
+            <div class="modal-actions" style="margin-top: 16px;">
+              <button class="secondary" id="newAnalysisBos1">← Back to Models</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOS2 Form -->
+        <div id="formBos2" class="modal-content">
+          <p style="color: var(--muted); margin-bottom: 16px;">Enter player attributes to find their best position.</p>
+          <div id="dso2FieldsContainer" class="fields-grid"></div>
+          <div class="modal-actions">
+            <button class="secondary" id="fillDso2">Reset</button>
+            <button class="secondary" id="randomDso2">Sample Data</button>
+            <button id="sendDso2">Find Position</button>
+          </div>
+          <div id="dso2Error" class="error"></div>
+          <div id="dso2ResultContainer" class="hidden">
+            <div class="modal-results">
+              <pre id="dso2Result"></pre>
+            </div>
+            <div class="modal-actions" style="margin-top: 16px;">
+              <button class="secondary" id="newAnalysisBos2">← Back to Models</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOS4 Form -->
+        <div id="formBos4" class="modal-content">
+          <p style="color: var(--muted); margin-bottom: 16px;">Search for players with similar profiles.</p>
+          <div class="field-group">
+            <label for="playerName">Player Name</label>
+            <input id="playerName" type="text" value="Cristiano Ronaldo" />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="field-group">
+              <label for="topN">How Many Results</label>
+              <input id="topN" type="number" min="1" max="50" value="5" />
+            </div>
+            <div class="field-group">
+              <label for="tol">Price Range (%)</label>
+              <input id="tol" type="number" min="0" max="1" step="0.05" value="0.3" />
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="sendRec">Find Similar Players</button>
+          </div>
+          <div id="recError" class="error"></div>
+          <div id="recResultContainer" class="hidden">
+            <div class="modal-results">
+              <pre id="recResult"></pre>
+            </div>
+            <div class="modal-actions" style="margin-top: 16px;">
+              <button class="secondary" id="newAnalysisBos4">← Back to Models</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <script>
     const byId = (id) => document.getElementById(id);
 
-    function showResult(id, data) {
-      byId(id).textContent = JSON.stringify(data, null, 2);
-    }
-
     function showError(id, message) {
       byId(id).textContent = message || "";
     }
+
+    const modalEl = byId("formModal");
+    const modelCards = document.querySelectorAll(".model-card");
+    let currentModel = null;
+
+    // Model selection
+    modelCards.forEach(card => {
+      card.addEventListener("click", () => {
+        currentModel = card.dataset.model;
+        showModal(currentModel);
+      });
+    });
+
+    // Modal controls
+    byId("closeModal").addEventListener("click", closeModal);
+    byId("formModal").addEventListener("click", (e) => {
+      if (e.target === modalEl) closeModal();
+    });
+
+    function showModal(model) {
+      // Hide all content first
+      document.querySelectorAll(".modal-content").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll("[id^='dso'][id$='ResultContainer']").forEach(el => el.classList.add("hidden"));
+      
+      if (model === "bos1") {
+        byId("modalTitle").textContent = "📊 Player Value Estimate";
+        byId("formBos1").classList.add("active");
+      } else if (model === "bos2") {
+        byId("modalTitle").textContent = "⚽ Best Position Finder";
+        byId("formBos2").classList.add("active");
+      } else if (model === "bos4") {
+        byId("modalTitle").textContent = "🔍 Find Similar Players";
+        byId("formBos4").classList.add("active");
+      }
+      
+      modalEl.classList.add("active");
+    }
+
+    function closeModal() {
+      modalEl.classList.remove("active");
+      currentModel = null;
+      document.querySelectorAll(".modal-content").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll("[id^='dso'][id$='ResultContainer']").forEach(el => el.classList.add("hidden"));
+    }
+
+    // Back to models buttons
+    ["Bos1", "Bos2", "Bos4"].forEach(model => {
+      const btn = byId(`newAnalysis${model}`);
+      if (btn) btn.addEventListener("click", () => {
+        closeModal();
+      });
+    });
 
     async function requestJson(path, options = {}) {
       const response = await fetch(path, {
@@ -454,6 +685,41 @@
       return { features };
     }
 
+    function generateFieldsForm(featureNames, containerId) {
+      const container = byId(containerId);
+      container.innerHTML = "";
+      for (const name of featureNames || []) {
+        const fieldGroup = document.createElement("div");
+        fieldGroup.className = "field-group";
+        fieldGroup.innerHTML = `
+          <label>${name}</label>
+          <input type="number" step="0.01" value="0" data-feature="${name}" />
+        `;
+        container.appendChild(fieldGroup);
+      }
+    }
+
+    function getFormPayload(containerId) {
+      const container = byId(containerId);
+      const features = {};
+      container.querySelectorAll('input[data-feature]').forEach(input => {
+        features[input.dataset.feature] = parseFloat(input.value) || 0;
+      });
+      return { features };
+    }
+
+    function fillFormZero(containerId) {
+      byId(containerId).querySelectorAll('input[data-feature]').forEach(input => {
+        input.value = "0";
+      });
+    }
+
+    function fillFormRandom(containerId) {
+      byId(containerId).querySelectorAll('input[data-feature]').forEach(input => {
+        input.value = (Math.random() * 100).toFixed(2);
+      });
+    }
+
     async function loadMeta() {
       const healthEl = byId("health");
       try {
@@ -473,24 +739,23 @@
           .map(([dotClass, label]) => `<span class="status-item"><span class="${dotClass}"></span><span>${label}</span></span>`)
           .join("");
 
+        generateFieldsForm(meta.dso1_features, "dso1FieldsContainer");
+        generateFieldsForm(meta.dso2_features, "dso2FieldsContainer");
+
         byId("fillDso1").onclick = () => {
-          const payload = buildFeaturesPayload(meta.dso1_features);
-          byId("dso1Payload").value = JSON.stringify(payload, null, 2);
+          fillFormZero("dso1FieldsContainer");
         };
 
         byId("randomDso1").onclick = () => {
-          const payload = buildRandomFeaturesPayload(meta.dso1_features);
-          byId("dso1Payload").value = JSON.stringify(payload, null, 2);
+          fillFormRandom("dso1FieldsContainer");
         };
 
         byId("fillDso2").onclick = () => {
-          const payload = buildFeaturesPayload(meta.dso2_features);
-          byId("dso2Payload").value = JSON.stringify(payload, null, 2);
+          fillFormZero("dso2FieldsContainer");
         };
 
         byId("randomDso2").onclick = () => {
-          const payload = buildRandomFeaturesPayload(meta.dso2_features);
-          byId("dso2Payload").value = JSON.stringify(payload, null, 2);
+          fillFormRandom("dso2FieldsContainer");
         };
       } catch (err) {
         healthEl.innerHTML = `<span class="status-item"><span class="status-dot off"></span><span>Error loading API state: ${err.message}</span></span>`;
@@ -500,12 +765,13 @@
     byId("sendDso1").onclick = async () => {
       showError("dso1Error", "");
       try {
-        const payload = JSON.parse(byId("dso1Payload").value);
+        const payload = getFormPayload("dso1FieldsContainer");
         const data = await requestJson("/predict/value", {
           method: "POST",
           body: JSON.stringify(payload),
         });
-        showResult("dso1Result", data);
+        byId("dso1Result").textContent = JSON.stringify(data, null, 2);
+        byId("dso1ResultContainer").classList.remove("hidden");
       } catch (err) {
         showError("dso1Error", err.message);
       }
@@ -514,12 +780,13 @@
     byId("sendDso2").onclick = async () => {
       showError("dso2Error", "");
       try {
-        const payload = JSON.parse(byId("dso2Payload").value);
+        const payload = getFormPayload("dso2FieldsContainer");
         const data = await requestJson("/predict/position", {
           method: "POST",
           body: JSON.stringify(payload),
         });
-        showResult("dso2Result", data);
+        byId("dso2Result").textContent = JSON.stringify(data, null, 2);
+        byId("dso2ResultContainer").classList.remove("hidden");
       } catch (err) {
         showError("dso2Error", err.message);
       }
@@ -537,7 +804,8 @@
           method: "POST",
           body: JSON.stringify(payload),
         });
-        showResult("recResult", data);
+        byId("recResult").textContent = JSON.stringify(data, null, 2);
+        byId("recResultContainer").classList.remove("hidden");
       } catch (err) {
         showError("recError", err.message);
       }
