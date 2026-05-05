@@ -6,18 +6,18 @@
   <title>ML Sport API UI</title>
   <style>
     :root {
-      --bg: #0f0f0f;
-      --card: rgba(30, 30, 30, 0.9);
+      --bg: #0f1729;
+      --card: rgba(20, 35, 60, 0.9);
       --text: #f0f0f0;
-      --muted: #a0a0a0;
-      --accent: #ffffff;
-      --accent-2: #e0e0e0;
-      --accent-3: #d0d0d0;
-      --border: rgba(200, 200, 200, 0.15);
+      --muted: #8ba3c3;
+      --accent: #3b82f6;
+      --accent-2: #93c5fd;
+      --accent-3: #60a5fa;
+      --border: rgba(59, 130, 246, 0.2);
       --danger: #ff4444;
       --shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
-      --primary: #ffffff;
-      --secondary: #e0e0e0;
+      --primary: #3b82f6;
+      --secondary: #93c5fd;
     }
 
     * {
@@ -33,10 +33,10 @@
       font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at 12% 14%, rgba(200, 200, 200, 0.1) 0, transparent 26%),
-        radial-gradient(circle at 82% 10%, rgba(47, 182, 232, 0.22) 0, transparent 28%),
-        radial-gradient(circle at 50% 110%, rgba(245, 158, 11, 0.18) 0, transparent 30%),
-        linear-gradient(180deg, #050b16 0%, var(--bg) 55%, #070e1a 100%);
+        radial-gradient(circle at 12% 14%, rgba(59, 130, 246, 0.12) 0, transparent 26%),
+        radial-gradient(circle at 82% 10%, rgba(96, 165, 250, 0.2) 0, transparent 28%),
+        radial-gradient(circle at 50% 110%, rgba(59, 130, 246, 0.15) 0, transparent 30%),
+        linear-gradient(180deg, #050e1f 0%, var(--bg) 55%, #0a1425 100%);
     }
 
     .container {
@@ -51,7 +51,7 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 32px;
-      background: rgba(26, 26, 26, 0.7);
+      background: rgba(20, 35, 60, 0.5);
     }
 
     .hero::after {
@@ -72,9 +72,9 @@
       gap: 8px;
       margin-bottom: 14px;
       padding: 7px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.25);
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(59, 130, 246, 0.08);
       color: var(--muted);
       font-size: 12px;
       text-transform: uppercase;
@@ -110,14 +110,14 @@
       gap: 8px;
       padding: 9px 12px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #d8e2f5;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      color: #93c5fd;
       font-size: 13px;
     }
 
     .pill strong {
-      color: #fff;
+      color: #93c5fd;
       font-weight: 700;
     }
 
@@ -142,9 +142,9 @@
       gap: 8px;
       padding: 10px 14px;
       border-radius: 999px;
-      border: 1px solid rgba(170, 189, 222, 0.18);
-      background: rgba(255, 255, 255, 0.06);
-      color: #d8e2f5;
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      background: rgba(59, 130, 246, 0.08);
+      color: #93c5fd;
       font-size: 13px;
     }
 
@@ -200,17 +200,17 @@
       display: block;
       margin: 12px 0 6px;
       font-size: 13px;
-      color: #cad5eb;
+      color: #93c5fd;
     }
 
     textarea,
     input {
       width: 100%;
-      border: 1px solid rgba(170, 189, 222, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.2);
       border-radius: 12px;
       padding: 11px 12px;
       font: inherit;
-      background: rgba(30, 60, 100, 0.9);
+      background: rgba(20, 35, 60, 0.9);
       color: var(--text);
       outline: none;
       transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
@@ -218,7 +218,7 @@
 
     textarea:focus,
     input:focus {
-      border-color: rgba(255, 255, 255, 0.5);
+      border-color: rgba(59, 130, 246, 0.6);
       box-shadow: none;
       transform: none;
     }
@@ -245,15 +245,15 @@
       font-weight: 600;
       cursor: pointer;
       background: var(--accent);
-      color: #1a0f08;
+      color: #0f1729;
       box-shadow: none;
       transition: opacity 150ms ease, transform 100ms ease;
     }
 
     button.secondary {
       background: transparent;
-      color: #f0f0f0;
-      border: 1px solid rgba(200, 200, 200, 0.3);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.3);
       box-shadow: none;
     }
 
@@ -264,14 +264,14 @@
     }
 
     button.secondary:hover {
-      background: rgba(200, 200, 200, 0.1);
+      background: rgba(59, 130, 246, 0.1);
     }
 
     pre {
       margin: 14px 0 0;
-      background: rgba(30, 60, 100, 0.8);
-      color: #d7e7ff;
-      border: 1px solid rgba(170, 189, 222, 0.2);
+      background: rgba(20, 35, 60, 0.8);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.2);
       border-radius: 14px;
       padding: 12px;
       min-height: 92px;
@@ -294,7 +294,7 @@
       align-items: center;
       margin-top: 12px;
       padding-top: 12px;
-      border-top: 1px solid rgba(200, 200, 200, 0.08);
+      border-top: 1px solid rgba(59, 130, 246, 0.08);
       color: var(--muted);
       font-size: 12px;
     }
@@ -310,8 +310,8 @@
       align-items: center;
       padding: 6px 10px;
       border-radius: 999px;
-      background: rgba(200, 200, 200, 0.1);
-      color: #b0b0b0;
+      background: rgba(59, 130, 246, 0.1);
+      color: #93c5fd;
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
@@ -340,7 +340,7 @@
     .field-group label {
       margin: 0;
       font-size: 12px;
-      color: #cad5eb;
+      color: #93c5fd;
       font-weight: 500;
     }
 
@@ -358,8 +358,8 @@
 
     .model-card {
       cursor: pointer;
-      background: rgba(40, 40, 40, 0.6);
-      border: 1px solid rgba(200, 200, 200, 0.15);
+      background: rgba(20, 35, 60, 0.6);
+      border: 1px solid rgba(59, 130, 246, 0.15);
       border-radius: 12px;
       padding: 20px;
       box-shadow: none;
@@ -368,7 +368,7 @@
     }
 
     .model-card:hover {
-      border-color: rgba(200, 200, 200, 0.4);
+      border-color: rgba(59, 130, 246, 0.4);
       transform: none;
       box-shadow: none;
     }
@@ -402,8 +402,8 @@
     }
 
     .modal {
-      background: rgba(40, 40, 40, 0.95);
-      border: 1px solid rgba(200, 200, 200, 0.15);
+      background: rgba(20, 35, 60, 0.95);
+      border: 1px solid rgba(59, 130, 246, 0.2);
       border-radius: 12px;
       padding: 32px;
       max-width: 600px;
@@ -419,7 +419,7 @@
       align-items: center;
       margin-bottom: 24px;
       padding-bottom: 12px;
-      border-bottom: 1px solid rgba(200, 200, 200, 0.1);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.15);
     }
 
     .modal-header h2 {
@@ -445,8 +445,8 @@
     }
 
     .modal-close:hover {
-      background: rgba(255, 255, 255, 0.06);
-      color: #f0f0f0;
+      background: rgba(59, 130, 246, 0.1);
+      color: #93c5fd;
     }
 
     .modal-content {
@@ -460,8 +460,8 @@
     .modal-results {
       margin-top: 20px;
       padding: 16px;
-      background: rgba(40, 40, 40, 0.5);
-      border: 1px solid rgba(200, 200, 200, 0.1);
+      background: rgba(20, 35, 60, 0.5);
+      border: 1px solid rgba(59, 130, 246, 0.15);
       border-radius: 12px;
     }
 
@@ -513,12 +513,12 @@
     }
 
     .result-table th {
-      background: rgba(200, 200, 200, 0.1);
+      background: rgba(59, 130, 246, 0.1);
       padding: 12px;
       text-align: left;
       font-weight: 600;
       color: var(--primary);
-      border-bottom: 2px solid rgba(200, 200, 200, 0.2);
+      border-bottom: 2px solid rgba(59, 130, 246, 0.2);
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -526,12 +526,12 @@
 
     .result-table td {
       padding: 12px;
-      border-bottom: 1px solid rgba(200, 200, 200, 0.08);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.08);
       color: var(--text);
     }
 
     .result-table tr:hover {
-      background: rgba(200, 200, 200, 0.04);
+      background: rgba(59, 130, 246, 0.04);
     }
 
     .similarity-score {
@@ -561,7 +561,7 @@
       align-items: center;
       margin-bottom: 16px;
       padding: 12px;
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(59, 130, 246, 0.06);
       border-radius: 10px;
       font-size: 13px;
       color: var(--muted);
@@ -570,7 +570,7 @@
     .progress-bar {
       width: 100%;
       height: 4px;
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(59, 130, 246, 0.15);
       border-radius: 999px;
       overflow: hidden;
       margin-bottom: 12px;
