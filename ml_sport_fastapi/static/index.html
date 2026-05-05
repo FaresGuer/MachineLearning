@@ -6,16 +6,18 @@
   <title>ML Sport API UI</title>
   <style>
     :root {
-      --bg: #081120;
-      --card: rgba(12, 20, 38, 0.78);
-      --text: #eaf1ff;
-      --muted: #9da9c4;
-      --accent: #4fd1c5;
-      --accent-2: #2fb6e8;
-      --accent-3: #f59e0b;
-      --border: rgba(170, 189, 222, 0.18);
-      --danger: #9f1239;
-      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      --bg: #0f2744;
+      --card: rgba(30, 60, 100, 0.9);
+      --text: #f5f9ff;
+      --muted: #a8b8d8;
+      --accent: #5ce5d9;
+      --accent-2: #3dc7ff;
+      --accent-3: #fbbf24;
+      --border: rgba(170, 189, 222, 0.3);
+      --danger: #ef4444;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+      --primary: #5ce5d9;
+      --secondary: #3dc7ff;
     }
 
     * {
@@ -50,8 +52,8 @@
       border-radius: 24px;
       padding: 28px;
       background:
-        linear-gradient(135deg, rgba(17, 29, 51, 0.9), rgba(8, 17, 32, 0.9)),
-        linear-gradient(120deg, rgba(79, 209, 197, 0.14), transparent 55%);
+        linear-gradient(135deg, rgba(45, 80, 130, 0.85), rgba(30, 60, 100, 0.85)),
+        linear-gradient(120deg, rgba(93, 229, 217, 0.18), transparent 55%);
       box-shadow: var(--shadow);
       backdrop-filter: blur(16px);
     }
@@ -219,7 +221,7 @@
       border-radius: 12px;
       padding: 11px 12px;
       font: inherit;
-      background: rgba(6, 11, 22, 0.8);
+      background: rgba(30, 60, 100, 0.9);
       color: var(--text);
       outline: none;
       transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
@@ -278,9 +280,9 @@
 
     pre {
       margin: 14px 0 0;
-      background: rgba(4, 8, 17, 0.95);
+      background: rgba(30, 60, 100, 0.8);
       color: #d7e7ff;
-      border: 1px solid rgba(170, 189, 222, 0.14);
+      border: 1px solid rgba(170, 189, 222, 0.2);
       border-radius: 14px;
       padding: 12px;
       min-height: 92px;
@@ -367,8 +369,8 @@
 
     .model-card {
       cursor: pointer;
-      background: linear-gradient(180deg, rgba(17, 29, 51, 0.94), rgba(10, 17, 33, 0.92));
-      border: 2px solid rgba(170, 189, 222, 0.18);
+      background: linear-gradient(180deg, rgba(45, 80, 130, 0.9), rgba(35, 70, 115, 0.85));
+      border: 2px solid rgba(170, 189, 222, 0.3);
       border-radius: 20px;
       padding: 20px;
       box-shadow: var(--shadow);
@@ -377,9 +379,9 @@
     }
 
     .model-card:hover {
-      border-color: rgba(79, 209, 197, 0.65);
+      border-color: rgba(93, 229, 217, 0.8);
       transform: translateY(-4px);
-      box-shadow: 0 20px 60px rgba(47, 182, 232, 0.18);
+      box-shadow: 0 20px 60px rgba(61, 199, 255, 0.25);
     }
 
     .model-card h3 {
@@ -399,7 +401,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(4px);
       z-index: 100;
       align-items: center;
@@ -411,15 +413,15 @@
     }
 
     .modal {
-      background: linear-gradient(180deg, rgba(8, 17, 32, 0.98), rgba(5, 11, 22, 0.98));
-      border: 1px solid rgba(170, 189, 222, 0.18);
+      background: linear-gradient(180deg, rgba(30, 60, 100, 0.95), rgba(20, 50, 80, 0.95));
+      border: 1px solid rgba(170, 189, 222, 0.25);
       border-radius: 24px;
       padding: 32px;
       max-width: 600px;
       width: 90%;
       max-height: 85vh;
       overflow-y: auto;
-      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.3);
     }
 
     .modal-header {
@@ -469,8 +471,8 @@
     .modal-results {
       margin-top: 20px;
       padding: 16px;
-      background: rgba(4, 8, 17, 0.95);
-      border: 1px solid rgba(79, 209, 197, 0.2);
+      background: rgba(30, 60, 100, 0.85);
+      border: 1px solid rgba(93, 229, 217, 0.3);
       border-radius: 14px;
     }
 
