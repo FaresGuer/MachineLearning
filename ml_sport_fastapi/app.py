@@ -8,6 +8,7 @@ from typing import Any
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from sklearn.neighbors import NearestNeighbors
@@ -53,6 +54,15 @@ app = FastAPI(
     title="ML Sport API",
     description="API de prediction DSO1/DSO2 et recommandation DSO4.",
     version="1.0.0",
+)
+
+# Add CORS middleware to allow browser requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 if STATIC_DIR.exists():
@@ -221,6 +231,7 @@ def health() -> dict[str, Any]:
 
 
 @app.get("/")
+@app.head("/")
 def root() -> dict[str, str]:
     return {
         "message": "ML Sport API is running",
