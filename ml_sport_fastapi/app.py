@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import json
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,10 @@ class RecommendationPayload(BaseModel):
     player_name: str = Field(min_length=1)
     top_n: int = Field(default=5, ge=1, le=50)
     value_tolerance: float = Field(default=0.30, ge=0.0, le=1.0)
+
+
+class ChatPayload(BaseModel):
+    message: str = Field(min_length=1)
 
 
 class AppState:
@@ -241,6 +246,45 @@ def meta_features() -> dict[str, Any]:
         "default_feature_value": 0.0,
         "recommendation_ready": state.rec_df is not None,
     }
+
+
+@app.post("/chat/football")
+def chat_football(payload: ChatPayload) -> dict[str, Any]:
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="GEMINI_API_KEY non configure")
+
+    try:
+        from google import generativeai as genai
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Package Gemini manquant. Installe google-generativeai.",
+        ) from exc
+
+    try:
+        genai.configure(api_key=api_key)
+        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        model = genai.GenerativeModel(model_name)
+        prompt = (
+            "You are a simple football helper for a beginner user. "
+            "Use plain language, short sentences, and avoid technical words. "
+            "Answer only football-related questions. "
+            "If the user asks about player roles, explain in a friendly way. "
+            f"User message: {payload.message}"
+        )
+        response = model.generate_content(prompt)
+        text = getattr(response, "text", None)
+        if not text:
+            raise RuntimeError("Gemini returned an empty response")
+        return {"reply": text.strip(), "source": "gemini"}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail={"error": "Gemini chat failed", "reason": str(exc)},
+        ) from exc
 
 
 @app.post("/predict/value")

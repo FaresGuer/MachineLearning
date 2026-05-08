@@ -34,6 +34,11 @@ Docs Swagger:
 Mini web UI:
 - `http://localhost:8000/ui`
 
+Chatbot Gemini:
+- Set `GEMINI_API_KEY` before starting the API.
+- Optional: set `GEMINI_MODEL` if you want a different Gemini model name.
+- The chat box will use Gemini when the key is present, and fall back to a simple local reply if it is not.
+
 ## 3) Exemple de payloads
 
 ### DSO1

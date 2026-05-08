@@ -594,6 +594,95 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+
+    .chat-shell {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+    }
+
+    .chat-window {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 420px;
+    }
+
+    .chat-log {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      background: rgba(20, 35, 60, 0.55);
+      overflow: auto;
+      min-height: 280px;
+      max-height: 420px;
+    }
+
+    .chat-bubble {
+      max-width: 88%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      line-height: 1.5;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: rgba(59, 130, 246, 0.18);
+      border: 1px solid rgba(59, 130, 246, 0.22);
+      color: #dbeafe;
+    }
+
+    .chat-bubble.bot {
+      align-self: flex-start;
+      background: rgba(10, 17, 33, 0.95);
+      border: 1px solid rgba(59, 130, 246, 0.16);
+      color: #f0f0f0;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input-row input {
+      flex: 1;
+    }
+
+    .chat-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-content: flex-start;
+    }
+
+    .suggestion-chip {
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      background: rgba(59, 130, 246, 0.08);
+      color: #dbeafe;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .chat-help {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 920px) {
+      .chat-shell {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -621,6 +710,25 @@
       <div class="model-card" data-model="bos4">
         <h3>🔍 Similar Players</h3>
         <p>Find comparable players with similar skills and market value.</p>
+      </div>
+    </section>
+
+    <section class="chat-shell">
+      <div class="card chat-window">
+        <div class="card-tag">Football Assistant</div>
+        <h2>Ask football questions</h2>
+        <p>Use this chat for football related topics.</p>
+        <div id="chatLog" class="chat-log" aria-live="polite"></div>
+        <div class="chat-input-row">
+          <input id="chatInput" type="text" placeholder="Ask about forwards, defenders, DSO1, DSO2, or similar players..." />
+          <button id="chatSend">Send</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-tag">Quick Prompts</div>
+        <h2>Suggested questions</h2>
+        <div class="chat-suggestions" id="chatSuggestions"></div>
       </div>
     </section>
 
@@ -737,6 +845,15 @@
     const modalEl = byId("formModal");
     const modelCards = document.querySelectorAll(".model-card");
     let currentModel = null;
+    const chatLog = byId("chatLog");
+    const chatInput = byId("chatInput");
+    const chatSuggestionTexts = [
+      "What should a forward be good at?",
+      "Give me a defender example.",
+      "What is the difference between value and position?",
+      "How do I find similar players?",
+      "Which stats matter for a goalkeeper?",
+    ];
 
     // Model selection
     modelCards.forEach(card => {
@@ -777,6 +894,91 @@
       document.querySelectorAll(".modal-content").forEach(el => el.classList.remove("active"));
       document.querySelectorAll("[id^='dso'][id$='ResultContainer']").forEach(el => el.classList.add("hidden"));
     }
+
+    function addChatMessage(role, text) {
+      const bubble = document.createElement("div");
+      bubble.className = `chat-bubble ${role}`;
+      bubble.textContent = text;
+      chatLog.appendChild(bubble);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function footballBotReply(message) {
+      const lower = message.toLowerCase();
+
+      if (lower.includes("dso1") || lower.includes("value")) {
+        return "For the value check, use a player's best football traits. Good things to enter are passing, shooting, ball control, dribbling, finishing, stamina, and composure. Example: a fast winger should have stronger dribbling and shooting, while a midfielder should have stronger passing and control.";
+      }
+
+      if (lower.includes("dso2") || lower.includes("position")) {
+        return "For the position check, think about how the player usually plays. If they score often, they may fit as a forward. If they pass and create chances, they may fit as a midfielder. If they defend well, they may fit as a defender. If they stop shots, they may fit as a goalkeeper.";
+      }
+
+      if (lower.includes("similar players") || lower.includes("dso4") || lower.includes("recommend")) {
+        return "For similar players, type one player's name and I will show others with a similar style. You can also choose how many names you want back. Example: 'Cristiano Ronaldo' or 'Kevin De Bruyne'.";
+      }
+
+      if (lower.includes("forward") || lower.includes("striker") || lower.includes("fwd")) {
+        return "A forward should be good at scoring goals, taking shots, making smart runs, and staying calm in front of goal.";
+      }
+
+      if (lower.includes("defender") || lower.includes("cb") || lower.includes("centre back") || lower.includes("center back")) {
+        return "A defender should be good at stopping attacks, winning the ball, and dealing with crosses and headers.";
+      }
+
+      if (lower.includes("midfielder") || lower.includes("mid") || lower.includes("cm") || lower.includes("cam") || lower.includes("cdm")) {
+        return "A midfielder should be good at passing, creating chances, keeping the ball, and helping the team move forward.";
+      }
+
+      if (lower.includes("goalkeeper") || lower.includes("gk") || lower.includes("keeper")) {
+        return "A goalkeeper should be good at saving shots, catching crosses, staying alert, and keeping the ball out of the net.";
+      }
+
+      if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey")) {
+        return "Hi. Ask me about football roles, player types, or which stats matter most.";
+      }
+
+      return "I can help with football roles, player types, and similar players. Try asking about a forward, defender, midfielder, or goalkeeper.";
+    }
+
+    async function sendChatMessage() {
+      const message = chatInput.value.trim();
+      if (!message) return;
+
+      addChatMessage("user", message);
+      chatInput.value = "";
+
+      try {
+        const data = await requestJson("/chat/football", {
+          method: "POST",
+          body: JSON.stringify({ message }),
+        });
+        addChatMessage("bot", data.reply || footballBotReply(message));
+      } catch {
+        addChatMessage("bot", footballBotReply(message));
+      }
+    }
+
+    chatSuggestionTexts.forEach((prompt) => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "suggestion-chip";
+      chip.textContent = prompt;
+      chip.addEventListener("click", () => {
+        chatInput.value = prompt;
+        sendChatMessage();
+      });
+      byId("chatSuggestions").appendChild(chip);
+    });
+
+    byId("chatSend").addEventListener("click", sendChatMessage);
+    chatInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        sendChatMessage();
+      }
+    });
+
+    addChatMessage("bot", "Ask me about football roles or player types.");
 
     // Back to models buttons
     ["Bos1", "Bos2", "Bos4"].forEach(model => {
