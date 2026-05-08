@@ -264,7 +264,7 @@ def chat_football(payload: ChatPayload) -> dict[str, Any]:
 
     try:
         genai.configure(api_key=api_key)
-        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
         model = genai.GenerativeModel(model_name)
         prompt = (
             "You are a simple football helper for a beginner user. "
@@ -283,33 +283,36 @@ def chat_football(payload: ChatPayload) -> dict[str, Any]:
     except Exception as exc:
         # Detect common model-not-found / unsupported errors and provide helpful details.
         msg = str(exc)
-        if "404 models/" in msg or "not found" in msg and "models/" in msg or "not supported" in msg:
+        if "404 models/" in msg or ("not found" in msg and "models/" in msg) or "not supported" in msg:
             available_models = None
             try:
                 list_func = getattr(genai, "list_models", None) or getattr(genai, "get_models", None)
                 if callable(list_func):
                     raw = list_func()
                     names: list[str] = []
+
                     if isinstance(raw, dict):
-                        maybe = raw.get("models") or raw
-                        if isinstance(maybe, list):
-                            for m in maybe:
-                                if isinstance(m, dict):
-                                    name = m.get("name") or m.get("id")
-                                    if name:
-                                        names.append(str(name))
-                                else:
-                                    names.append(str(m))
-                    elif isinstance(raw, list):
-                        for m in raw:
-                            if isinstance(m, dict):
-                                name = m.get("name") or m.get("id")
-                                if name:
-                                    names.append(str(name))
-                            else:
-                                names.append(str(m))
+                        maybe = raw.get("models") or raw.get("data") or raw
+                        items = maybe if isinstance(maybe, list) else [maybe]
+                    elif isinstance(raw, (list, tuple)):
+                        items = list(raw)
+                    elif hasattr(raw, "__iter__") and not isinstance(raw, (str, bytes)):
+                        items = list(raw)
                     else:
-                        names = [str(raw)]
+                        items = [raw]
+
+                    for m in items:
+                        name = None
+                        if isinstance(m, dict):
+                            name = m.get("name") or m.get("id")
+                        else:
+                            name = getattr(m, "name", None) or getattr(m, "id", None)
+
+                        if name:
+                            names.append(str(name))
+                        elif m is not None:
+                            names.append(str(m))
+
                     available_models = names
             except Exception:
                 available_models = None
