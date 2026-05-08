@@ -281,9 +281,50 @@ def chat_football(payload: ChatPayload) -> dict[str, Any]:
     except HTTPException:
         raise
     except Exception as exc:
+        # Detect common model-not-found / unsupported errors and provide helpful details.
+        msg = str(exc)
+        if "404 models/" in msg or "not found" in msg and "models/" in msg or "not supported" in msg:
+            available_models = None
+            try:
+                list_func = getattr(genai, "list_models", None) or getattr(genai, "get_models", None)
+                if callable(list_func):
+                    raw = list_func()
+                    names: list[str] = []
+                    if isinstance(raw, dict):
+                        maybe = raw.get("models") or raw
+                        if isinstance(maybe, list):
+                            for m in maybe:
+                                if isinstance(m, dict):
+                                    name = m.get("name") or m.get("id")
+                                    if name:
+                                        names.append(str(name))
+                                else:
+                                    names.append(str(m))
+                    elif isinstance(raw, list):
+                        for m in raw:
+                            if isinstance(m, dict):
+                                name = m.get("name") or m.get("id")
+                                if name:
+                                    names.append(str(name))
+                            else:
+                                names.append(str(m))
+                    else:
+                        names = [str(raw)]
+                    available_models = names
+            except Exception:
+                available_models = None
+
+            detail = {
+                "error": "Gemini model not found or unsupported for generateContent",
+                "requested_model": model_name,
+                "available_models": available_models,
+                "hint": "Set GEMINI_MODEL to a supported model or call the provider's ListModels API to see available models.",
+            }
+            raise HTTPException(status_code=502, detail=detail)
+
         raise HTTPException(
             status_code=500,
-            detail={"error": "Gemini chat failed", "reason": str(exc)},
+            detail={"error": "Gemini chat failed", "reason": msg},
         ) from exc
 
 
