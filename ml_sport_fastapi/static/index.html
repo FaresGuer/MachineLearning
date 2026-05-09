@@ -3,9 +3,6 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <title>ML Sport API UI</title>
   <style>
     :root {
@@ -698,7 +695,6 @@
         <p class="subtitle">Quickly analyze player performance, predict their market value and optimal position, and discover similar athletes in seconds.</p>
         <div class="status-strip">
           <div id="health" class="health"><span class="status-item"><span class="status-dot"></span><span>Loading API health...</span></span></div>
-        <div style="margin-left:12px; display:inline-flex; align-items:center;"><span class="pill" id="uiVersion">UI: -</span></div>
         </div>
       </div>
     </section>
@@ -1187,79 +1183,70 @@
 
     async function loadMeta() {
       const healthEl = byId("health");
-      // Set UI version so you can verify deployed UI is up-to-date
-      const verEl = byId('uiVersion');
-      try { if (verEl) verEl.textContent = 'UI: ' + new Date().toISOString().split('T')[0]; } catch {}
-
-      // Use allSettled so a blocked /health won't prevent loading /meta/features
-      const results = await Promise.allSettled([
-        requestJson('/health').catch(err => ({ error: err })),
-        requestJson('/meta/features').catch(err => ({ error: err })),
-      ]);
-
-      const healthRes = results[0];
-      const metaRes = results[1];
-
-      // Health display
       try {
-        if (healthRes.status === 'fulfilled' && healthRes.value && !healthRes.value.error) {
-          const health = healthRes.value;
-          healthEl.innerHTML = `<span class="status-item"><span class="${health.status === 'ok' ? 'status-dot' : 'status-dot off'}"></span><span>API: ${health.status}</span></span>`;
-        } else {
-          const reason = (healthRes.reason && healthRes.reason.message) || (healthRes.value && healthRes.value.error && healthRes.value.error.message) || 'unavailable';
-          healthEl.innerHTML = `<span class="status-item"><span class="status-dot off"></span><span>API: ${reason}</span></span>`;
-        }
-      } catch (e) {
-        healthEl.innerHTML = `<span class="status-item"><span class="status-dot off"></span><span>API: unknown</span></span>`;
-      }
+        const [health, meta] = await Promise.all([
+          requestJson("/health"),
+          requestJson("/meta/features"),
+        ]);
 
-      // Meta/features handling
-      if (metaRes.status === 'fulfilled' && metaRes.value && !metaRes.value.error) {
-        const meta = metaRes.value;
-        try {
-          generateFieldsForm(meta.dso1_features, 'dso1FieldsContainer', 'dso1');
-          generateFieldsForm(meta.dso2_features, 'dso2FieldsContainer', 'dso2');
+        const chips = [
+          [health.status === "ok" ? "status-dot" : "status-dot off", `API: ${health.status}`],
+        ];
 
-          byId('fillDso1').onclick = () => fillFormZero('dso1FieldsContainer');
-          byId('randomDso1').onclick = () => fillFormRandom('dso1FieldsContainer');
-          byId('fillDso2').onclick = () => fillFormZero('dso2FieldsContainer');
-          byId('randomDso2').onclick = () => fillFormRandom('dso2FieldsContainer');
+        healthEl.innerHTML = chips
+          .map(([dotClass, label]) => `<span class="status-item"><span class="${dotClass}"></span><span>${label}</span></span>`)
+          .join("");
 
-          // Pagination handlers for DSO1
-          byId('prevDso1').addEventListener('click', () => {
-            if (paginationState.dso1.currentPage > 0) {
-              paginationState.dso1.currentPage--;
-              updateFeaturePage('dso1FieldsContainer', 'dso1');
-            }
-          });
-          byId('nextDso1').addEventListener('click', () => {
-            if (paginationState.dso1.currentPage < paginationState.dso1.totalPages - 1) {
-              paginationState.dso1.currentPage++;
-              updateFeaturePage('dso1FieldsContainer', 'dso1');
-            }
-          });
+        generateFieldsForm(meta.dso1_features, "dso1FieldsContainer", "dso1");
+        generateFieldsForm(meta.dso2_features, "dso2FieldsContainer", "dso2");
 
-          // Pagination handlers for DSO2
-          byId('prevDso2').addEventListener('click', () => {
-            if (paginationState.dso2.currentPage > 0) {
-              paginationState.dso2.currentPage--;
-              updateFeaturePage('dso2FieldsContainer', 'dso2');
-            }
-          });
-          byId('nextDso2').addEventListener('click', () => {
-            if (paginationState.dso2.currentPage < paginationState.dso2.totalPages - 1) {
-              paginationState.dso2.currentPage++;
-              updateFeaturePage('dso2FieldsContainer', 'dso2');
-            }
-          });
-        } catch (e) {
-          console.error('Error rendering meta features', e);
-          showError('dso1Error', 'Failed to render feature forms.');
-        }
-      } else {
-        const reason = (metaRes.reason && metaRes.reason.message) || (metaRes.value && metaRes.value.error && metaRes.value.error.message) || 'features unavailable';
-        showError('dso1Error', 'Could not load feature metadata: ' + reason);
-        showError('dso2Error', 'Could not load feature metadata: ' + reason);
+        byId("fillDso1").onclick = () => {
+          fillFormZero("dso1FieldsContainer");
+        };
+
+        byId("randomDso1").onclick = () => {
+          fillFormRandom("dso1FieldsContainer");
+        };
+
+        byId("fillDso2").onclick = () => {
+          fillFormZero("dso2FieldsContainer");
+        };
+
+        byId("randomDso2").onclick = () => {
+          fillFormRandom("dso2FieldsContainer");
+        };
+
+        // Pagination handlers for DSO1
+        byId("prevDso1").addEventListener("click", () => {
+          if (paginationState.dso1.currentPage > 0) {
+            paginationState.dso1.currentPage--;
+            updateFeaturePage("dso1FieldsContainer", "dso1");
+          }
+        });
+
+        byId("nextDso1").addEventListener("click", () => {
+          if (paginationState.dso1.currentPage < paginationState.dso1.totalPages - 1) {
+            paginationState.dso1.currentPage++;
+            updateFeaturePage("dso1FieldsContainer", "dso1");
+          }
+        });
+
+        // Pagination handlers for DSO2
+        byId("prevDso2").addEventListener("click", () => {
+          if (paginationState.dso2.currentPage > 0) {
+            paginationState.dso2.currentPage--;
+            updateFeaturePage("dso2FieldsContainer", "dso2");
+          }
+        });
+
+        byId("nextDso2").addEventListener("click", () => {
+          if (paginationState.dso2.currentPage < paginationState.dso2.totalPages - 1) {
+            paginationState.dso2.currentPage++;
+            updateFeaturePage("dso2FieldsContainer", "dso2");
+          }
+        });
+      } catch (err) {
+        healthEl.innerHTML = `<span class="status-item"><span class="status-dot off"></span><span>Error loading API state: ${err.message}</span></span>`;
       }
     }
 
